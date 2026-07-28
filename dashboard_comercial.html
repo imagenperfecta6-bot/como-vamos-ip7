@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Inteligencia Comercial · IP7 · Julio 2026 · Actualización mensual</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F5F7FA;--card:#fff;--ink:#1a1a2e;--ink2:#4a4a6a;--ink3:#8888aa;
+  --border:#e2e8f0;--accent:#6C63FF;--accent2:#FF6584;--accent3:#43C59E;
+  --warn:#F59E0B;--info:#3B82F6;
+  --exec1:#6C63FF;--exec2:#FF6584;--exec3:#43C59E;--exec4:#F59E0B;--exec5:#EC4899;--exec6:#14B8A6;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+a{color:inherit;text-decoration:none}
+
+/* TOP BAR */
+.topbar{background:#1a1a2e;color:#fff;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.logo{font-weight:800;font-size:20px;letter-spacing:-0.5px}
+.logo span{color:#FFD700}
+.topbar-meta{font-size:12px;opacity:.7}
+.topbar-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
+.btn-edit{background:#6C63FF;color:#fff}
+.btn-edit.active{background:#43C59E}
+.btn-export{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.btn-export:hover{background:rgba(255,255,255,.2)}
+
+/* SEARCH BAR */
+.searchbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 28px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;top:57px;z-index:99}
+.search-input{flex:1;min-width:200px;padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none}
+.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,99,255,.1)}
+.filter-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.ftab{padding:6px 14px;border-radius:20px;border:2px solid var(--border);background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink2);transition:all .15s}
+.ftab.active,.ftab:hover{color:#fff;border-color:transparent}
+.ftab[data-exec="all"].active,.ftab[data-exec="all"]:hover{background:var(--ink)}
+.ftab[data-exec="Elizabeth"].active{background:var(--exec1);border-color:var(--exec1)}
+.ftab[data-exec="Arian"].active{background:var(--exec2);border-color:var(--exec2)}
+.ftab[data-exec="Sevas"].active{background:var(--exec3);border-color:var(--exec3)}
+.ftab[data-exec="Margarita"].active{background:var(--exec4);border-color:var(--exec4)}
+.ftab[data-exec="Daniel"].active{background:var(--exec5);border-color:var(--exec5)}
+.ftab[data-exec="Yanira"].active{background:var(--exec6);border-color:var(--exec6)}
+
+/* MARKET PULSE */
+.pulse-section{padding:20px 28px 0}
+.section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:14px}
+.pulse-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px}
+.pulse-card{background:var(--card);border-radius:14px;padding:18px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.pulse-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.pulse-icon{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:18px;flex-shrink:0}
+.pulse-card-title{font-weight:700;font-size:15px}
+.pulse-card-sub{font-size:12px;color:var(--ink3);margin-top:2px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.stat-row:last-child{border-bottom:none}
+.stat-val{font-weight:700;color:var(--accent)}
+.stat-up{color:#22c55e}
+.stat-down{color:#ef4444}
+.badge-new{background:#dcfce7;color:#16a34a;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.04em}
+
+/* MAIN GRID */
+.main{padding:20px 28px 60px}
+.exec-section{margin-bottom:36px}
+.exec-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.exec-dot{width:14px;height:14px;border-radius:50%}
+.exec-name{font-size:20px;font-weight:800;letter-spacing:-0.5px}
+.exec-count{background:var(--border);color:var(--ink2);font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px}
+.clients-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px}
+
+/* CLIENT CARD */
+.client-card{background:var(--card);border-radius:16px;border:1px solid var(--border);box-shadow:0 1px 6px rgba(0,0,0,.06);overflow:hidden;transition:box-shadow .15s}
+.client-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.client-card-header{padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.client-logo{width:40px;height:40px;border-radius:10px;background:var(--bg);display:grid;place-items:center;overflow:hidden;flex-shrink:0;border:1px solid var(--border)}
+.client-logo img{width:36px;height:36px;object-fit:contain;border-radius:8px}
+.client-logo-text{font-size:14px;font-weight:800;color:var(--ink2)}
+.client-name{font-weight:700;font-size:14px;line-height:1.3;flex:1}
+.client-sector{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;margin-top:4px;display:inline-block}
+.exec-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;color:#fff;flex-shrink:0}
+
+.client-card-body{padding:0}
+.info-tab{border-bottom:1px solid var(--border)}
+.info-tab:last-child{border-bottom:none}
+.info-tab-header{padding:10px 18px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.info-tab-header:hover{background:var(--bg)}
+.info-tab-icon{font-size:14px;width:22px}
+.info-tab-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);flex:1}
+.info-tab-arrow{font-size:10px;color:var(--ink3);transition:transform .2s}
+.info-tab.open .info-tab-arrow{transform:rotate(180deg)}
+.info-tab-content{display:none;padding:10px 18px 14px;font-size:13px;color:var(--ink2);line-height:1.65}
+.info-tab.open .info-tab-content{display:block}
+.info-tag{display:inline-block;background:var(--bg);border:1px solid var(--border);color:var(--ink2);font-size:11px;padding:2px 8px;border-radius:20px;margin:2px}
+
+/* Edit mode */
+body.edit-mode .info-tab-content{border-top:1.5px dashed var(--accent);background:#fafbff}
+body.edit-mode [contenteditable]{outline:1.5px dashed var(--accent);border-radius:4px;padding:2px 4px;min-height:20px}
+body.edit-mode [contenteditable]:focus{outline:2px solid var(--accent);background:#fff}
+.edit-hint{display:none;font-size:11px;color:var(--accent);margin-top:6px;font-style:italic}
+body.edit-mode .edit-hint{display:block}
+
+/* Sector colors */
+.sector-auto{background:#EEF2FF;color:#4338CA}
+.sector-farma{background:#FDF2F8;color:#9D174D}
+.sector-banco{background:#EFF6FF;color:#1D4ED8}
+.sector-tech{background:#F0FDF4;color:#166534}
+.sector-logistica{background:#FFF7ED;color:#C2410C}
+.sector-edu{background:#FAF5FF;color:#6D28D9}
+.sector-salud{background:#FFF1F2;color:#BE123C}
+.sector-construccion{background:#F0FDF4;color:#065F46}
+.sector-industria{background:#F8FAFC;color:#334155}
+.sector-energia{background:#FFFBEB;color:#92400E}
+
+/* No results */
+.no-results{text-align:center;padding:60px;color:var(--ink3);font-size:15px}
+
+@media(max-width:600px){
+  .topbar,.searchbar,.pulse-section,.main{padding-left:14px;padding-right:14px}
+  .clients-grid{grid-template-columns:1fr}
+  .pulse-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="logo">IP<span>7</span> · Inteligencia Comercial</div>
+    <div class="topbar-meta">Julio 2026 · Actualización mensual automática — 14 Julio 2026</div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn btn-edit" id="editBtn" onclick="toggleEdit()">✏️ Editar</button>
+    <button class="btn btn-export" onclick="window.print()">🖨️ Imprimir</button>
+  </div>
+</div>
+
+<div class="searchbar">
+  <input class="search-input" id="searchInput" placeholder="🔍  Buscar cliente, sector, novedad..." oninput="filterCards()">
+  <div class="filter-tabs">
+    <button class="ftab active" data-exec="all" onclick="setExec('all',this)">Todos</button>
+    <button class="ftab" data-exec="Elizabeth" onclick="setExec('Elizabeth',this)" style="--hc:var(--exec1)">Elizabeth</button>
+    <button class="ftab" data-exec="Arian" onclick="setExec('Arian',this)">Arian</button>
+    <button class="ftab" data-exec="Sevas" onclick="setExec('Sevas',this)">Sevas</button>
+    <button class="ftab" data-exec="Margarita" onclick="setExec('Margarita',this)">Margarita</button>
+    <button class="ftab" data-exec="Daniel" onclick="setExec('Daniel',this)">Daniel</button>
+    <button class="ftab" data-exec="Yanira" onclick="setExec('Yanira',this)">Yanira</button>
+  </div>
+</div>
+
+<!-- MARKET PULSE -->
+<div class="pulse-section">
+  <div class="section-title">📊 Pulso del Mercado · Julio 2026</div>
+  <div class="pulse-grid">
+
+    <div class="pulse-card">
+      <div class="pulse-card-header">
+        <div class="pulse-icon" style="background:#EEF2FF">🚗</div>
+        <div><div class="pulse-card-title">Mercado Automotriz Colombia</div><div class="pulse-card-sub">Cierre Primer Semestre 2026</div></div>
+      </div>
+      <div class="stat-row"><span>Total matrículas S1 2026</span><span class="stat-val">157.620 unidades</span></div>
+      <div class="stat-row"><span>Crecimiento vs S1 2025</span><span class="stat-up">+50.1% 📈</span></div>
+      <div class="stat-row"><span>Proyección año completo</span><span class="stat-val">+250.000 unidades</span></div>
+      <div class="stat-row"><span>#1 Marca: Kia</span><span class="stat-val">13% mercado · lidera</span></div>
+      <div class="stat-row"><span>Renault (2°) · Toyota (3°)</span><span class="stat-val">15.820 / ranking 3°</span></div>
+      <div class="stat-row"><span>Vehículos eléctricos (BEV)</span><span class="stat-up">+235.5% · 15.5% del mercado 🔋</span></div>
+      <div class="stat-row"><span>Híbridos (HEV/PHEV)</span><span class="stat-up">44.605 u · +74.6% ⚡</span></div>
+      <div class="stat-row"><span>Junio 2026 (mejor mes)</span><span class="stat-val">29.038 matrículas</span></div>
+    </div>
+
+    <div class="pulse-card">
+      <div class="pulse-card-header">
+        <div class="pulse-icon" style="background:#FDF2F8">💊</div>
+        <div><div class="pulse-card-title">Sector Farmacéutico & Salud</div><div class="pulse-card-sub">Colombia Julio 2026</div></div>
+      </div>
+      <div class="stat-row"><span>Mercado farmacéutico 2026</span><span class="stat-val">~US$6.000 millones</span></div>
+      <div class="stat-row"><span>Exportaciones farma 2025</span><span class="stat-val">~US$388M · 85% a LATAM</span></div>
+      <div class="stat-row"><span>INVIMA nivel OPS/OMS</span><span class="stat-val">Nivel IV (más alto) ✅</span></div>
+      <div class="stat-row"><span>Trámites pendientes INVIMA</span><span class="stat-val">~12.700 (urgente modernizar)</span></div>
+      <div class="stat-row"><span>Reforma a la salud</span><span class="stat-down">Archivada en Congreso ❌</span></div>
+      <div class="stat-row"><span>Tendencia clave</span><span class="stat-val">Biosimilares + IA diagnóstico</span></div>
+    </div>
+
+    <div class="pulse-card">
+      <div class="pulse-card-header">
+        <div class="pulse-icon" style="background:#EFF6FF">🏦</div>
+        <div><div class="pulse-card-title">Sector Financiero & Tech</div><div class="pulse-card-sub">Colombia Julio 2026</div></div>
+      </div>
+      <div class="stat-row"><span>🔥 Banco de Bogotá + Itaú</span><span class="stat-val">Aprobado por Superfinanciera</span></div>
+      <div class="stat-row"><span>Nuevos clientes BdB (Itaú)</span><span class="stat-val">+270.000 · cartera $6,5B</span></div>
+      <div class="stat-row"><span>Tarjetas BdB post-adquisición</span><span class="stat-val">4,12 millones</span></div>
+      <div class="stat-row"><span>Crecimiento cartera BdB 2026</span><span class="stat-up">+14% proyectado</span></div>
+      <div class="stat-row"><span>Experian Colombia CEO</span><span class="stat-val">Clariana Carreño</span></div>
+      <div class="stat-row"><span>IA en crédito (Experian)</span><span class="stat-up">53% usuarios con IA 📱</span></div>
+    </div>
+
+    <div class="pulse-card">
+      <div class="pulse-card-header">
+        <div class="pulse-icon" style="background:#FFFBEB">⚡</div>
+        <div><div class="pulse-card-title">Energía & Construcción</div><div class="pulse-card-sub">Colombia Julio 2026</div></div>
+      </div>
+      <div class="stat-row"><span>🔥 Subasta energía limpia</span><span class="stat-val">23 julio 2026 (largo plazo)</span></div>
+      <div class="stat-row"><span>H2 verde: Ecopetrol+Siemens</span><span class="stat-val">+ EDF + Northland Power</span></div>
+      <div class="stat-row"><span>Siemens Energy Colombia</span><span class="stat-val">+1.000 MW en ejecución</span></div>
+      <div class="stat-row"><span>Siemens: conv. eficiencia energ.</span><span class="stat-val">Convocatoria regional jun-2026</span></div>
+      <div class="stat-row"><span>Sector construcción</span><span class="stat-val">Recuperación gradual · VIS alta</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MAIN CLIENT GRID -->
+<div class="main" id="mainGrid"></div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const EXECS = {
+  Elizabeth: { color:'#6C63FF', clients: [
+    { name:'AUTOVARDI', full:'AUTOVARDI (Distribuidora Nissan, Talleres Autorizados, Com Auto, Agencia)', sector:'Automotriz', sClass:'auto',
+      logo:'nissan.com',
+      empresa:'Concesionario oficial Nissan en Colombia con red de talleres autorizados y múltiples puntos de venta. Parte del boom automotriz 2026: el mercado creció 50.3% en el primer semestre.',
+      producto:'Portafolio Nissan 2026: Frontier, Kicks, NP300, X-Trail. La marca refuerza sus SUVs y pickups que siguen siendo líderes en segmento. Talleres autorizados con certificación Nissan de servicio posventa.',
+      mercado:'Mercado automotriz Colombia en expansión histórica. Tesla sorprendió en el top pero las marcas japonesas (Toyota #3, Nissan) mantienen presencia sólida en flotas corporativas y pickups.',
+      insight:'Oportunidad: El crecimiento del 50% del mercado implica mayor actividad de flotas, compras corporativas y posventa. Ideal para proponer servicios de impresión de manuales, señalética, branding de showrooms.' },
+
+    { name:'BANCO DE BOGOTÁ', full:'BANCO DE BOGOTÁ', sector:'Financiero', sClass:'banco',
+      logo:'bancodebogota.com',
+      empresa:'🔥 JULIO 2026: Superfinanciera aprobó la adquisición de la banca minorista de Itaú Colombia por parte del Banco de Bogotá. El banco sumará ~270.000 nuevos clientes, una cartera de $6,5 billones y depósitos por $4,1 billones. Llegará a 4,12 millones de tarjetas activas. Premio iF Design 2026 por "Sherpa". Mejor Banco de Colombia según Global Finance. 900M+ transacciones/año.',
+      producto:'App con diferido automático, modificación de cuotas, refinanciación digital. Sistema Sherpa: diseño de clase mundial. Portafolio expandido con absorción de clientes Itaú. Crecimiento de cartera proyectado en 14% para 2026.',
+      mercado:'La absorción de Itaú refuerza su posición como el banco más grande del Grupo Aval y consolida su liderazgo en el mercado minorista colombiano. Itaú se concentrará en segmento empresarial. BdB refuerza presencia con más puntos de contacto.',
+      insight:'Momento excepcional: la integración de 270.000 clientes Itaú requiere comunicaciones de bienvenida, señalética de puntos de atención, materiales de transición de marca y comunicaciones internas masivas. Contactar ahora para propuesta de onboarding de clientes.' },
+
+    { name:'BANCOLDEX', full:'BANCO DE COMERCIO EXTERIOR DE COLOMBIA SA', sector:'Financiero', sClass:'banco',
+      logo:'bancoldex.com',
+      empresa:'Banco de segundo piso del Estado colombiano para financiamiento empresarial y comercio exterior. Instrumento clave del Gobierno para reactivación económica 2026.',
+      producto:'Líneas de crédito para mipymes, empresas exportadoras, economía circular y transformación productiva. Programas especiales para sectores en recuperación post-pandemia.',
+      mercado:'El Gobierno colombiano impulsa en 2026 crédito accesible y transformación empresarial. Bancoldex es canal estratégico de política económica.',
+      insight:'Institución pública con alto volumen de comunicaciones, reportes, publicaciones e impresión institucional. Ciclos de contratación pública con fechas fijas: anticipar propuestas.' },
+
+    { name:'BIOQUIFAR', full:'BIOQUIFAR PHARMACEUTICA S A', sector:'Farmacéutico', sClass:'farma',
+      logo:'bioquifar.com',
+      empresa:'Laboratorio farmacéutico colombiano con 70+ productos de prescripción médica, 6 oficinas nacionales. Especialista en medicamentos de uso exclusivo médico.',
+      producto:'Más de 70 moléculas en portafolio de prescripción. Líneas: cardiovascular, metabólico, neurológico. Distribución nacional a IPS, EPS y farmacias especializadas.',
+      mercado:'El sector farmacéutico colombiano representa el 21% del gasto en salud. Bioquifar compite en el segmento de genéricos de calidad frente a multinacionales.',
+      insight:'Laboratorio con necesidades de material médico-científico, brochures de producto, presentaciones para visitadores médicos y congresos médicos. Alta rotación de materiales de promoción.' },
+
+    { name:'BOLSA DE VALORES', full:'BOLSA DE VALORES DE COLOMBIA SA', sector:'Financiero', sClass:'banco',
+      logo:'bvc.com.co',
+      empresa:'Principal mercado de valores de Colombia. En 2026, el mercado de capitales colombiano busca atraer más emisores y ampliar productos de inversión alternativos.',
+      producto:'Acciones, bonos, derivados, ETFs, renta fija. Plataforma xTrend, MEC Plus. Nuevo impulso a fondos de capital privado y deuda corporativa en pesos.',
+      mercado:'El mercado bursátil colombiano crece en inversión retail. Nuevas regulaciones de la SFC impulsan transparencia y acceso a pequeños inversionistas.',
+      insight:'La BVC realiza constantemente eventos, seminarios, capacitaciones y publicaciones de mercado. Gran consumidor de materiales impresos y digitales de alta calidad corporativa.' },
+
+    { name:'DIVEMOTOR', full:'DIVEMOTOR COLOMBIA S.A.', sector:'Automotriz', sClass:'auto',
+      logo:'divemotor.com',
+      empresa:'Distribuidor oficial Mercedes-Benz en Colombia. Opera en el segmento premium con vehículos de pasajeros, vans y camiones. Red de talleres certificados.',
+      producto:'Mercedes-Benz C-Class, E-Class, GLE, GLC, EQS (eléctrico). Vans Sprinter para carga y pasajeros. Camiones para logística industrial.',
+      mercado:'Segmento premium creció con el boom automotriz 2026. Consumidores de alto poder adquisitivo aceleran compra antes de posibles ajustes tributarios.',
+      insight:'Showrooms de lujo requieren materiales de alta calidad: brochures premium, señalética, ropa corporativa, packaging especial para entrega de vehículos.' },
+
+    { name:'INSTITUTO DIAGNÓSTICO MÉDICO', full:'INSTITUTO DE DIAGNOSTICO MEDICO (Clínica Nueva, Cali, Rafael Uribe, Cartago)', sector:'Salud', sClass:'salud',
+      logo:'idime.com.co',
+      empresa:'Red de laboratorios clínicos y centros de diagnóstico con presencia en Bogotá, Cali y otros municipios. Más de 40 años en el sector salud colombiano.',
+      producto:'Diagnóstico por imagen, laboratorio clínico, patología, genética. Acreditación por ICONTEC. Servicios a EPS, ARL, medicina prepagada y particular.',
+      mercado:'El sector diagnóstico en Colombia crece impulsado por la demanda post-COVID y digitalización de historias clínicas. Presión de precios de EPS vs. calidad exigida.',
+      insight:'Red con múltiples sedes: necesidades permanentes de señalética, formularios, etiquetas, carpetas de resultados, material de bioseguridad y branding uniforme.' },
+
+    { name:'TERUMO COLOMBIA', full:'TERUMO COLOMBIA ANDINA S.A.S.', sector:'Salud', sClass:'salud',
+      logo:'terumo.com',
+      empresa:'Filial de Terumo Corporation (Japón), líder mundial en dispositivos médicos. En Colombia cubre región andina con productos de alta tecnología médica.',
+      producto:'Jeringas, agujas, equipos de infusión, catéteres, sistemas de transfusión y cardiocirugía. Línea Terumo BCT para medicina transfusional.',
+      mercado:'Dispositivos médicos en Colombia: mercado en crecimiento. Reforma a la salud en debate impulsa mayor atención a proveedores confiables de dispositivos críticos.',
+      insight:'Empresa japonesa con altos estándares de presentación corporativa. Oportunidad en materiales para licitaciones hospitalarias, capacitaciones clínicas y congresos médicos.' },
+
+    { name:'VEHICULOS DEL LLANO', full:'VEHICULOS DEL LLANO SAS', sector:'Automotriz', sClass:'auto',
+      logo:'vehiculosdellano.com',
+      empresa:'Concesionario automotriz en los Llanos Orientales. Atiende mercado regional con alta demanda de pickups y vehículos utilitarios para el sector agropecuario.',
+      producto:'Representación de marcas automotrices para la región de los Llanos. Fuerte demanda de camionetas 4x4 y pickups para sector petrolero y ganadero.',
+      mercado:'La región de los Llanos vive dinámica propia: sectores petrolero, agropecuario y turístico sostienen demanda de vehículos robustos a pesar de ciclos económicos.',
+      insight:'Concesionario regional con necesidades de material POP, publicidad local, branding de instalaciones y comunicación para fuerza de ventas en zona.' },
+
+    { name:'SILIMPORT', full:'SILIMPORT SAS', sector:'Industria', sClass:'industria',
+      logo:'silimport.com',
+      empresa:'Empresa importadora y distribuidora de insumos para la industria. Opera en segmento B2B con materiales especializados.',
+      producto:'Importación y distribución de materiales industriales. Manejo de clientes corporativos y licitaciones del sector productivo.',
+      mercado:'Sector importador colombiano afectado por tipo de cambio. Diversificación de proveedores y nearshoring abren oportunidades para distribuidores locales.',
+      insight:'Empresa con ciclos de compra corporativos regulares. Necesidades de catálogos técnicos, fichas de producto y material para fuerza de ventas.' },
+
+    { name:'CORPOMULTIVAC', full:'CORPORACION MULTIVAC SAS', sector:'Industria', sClass:'industria',
+      logo:'multivac.com',
+      empresa:'Representante de Multivac en Colombia, líder mundial en empaque y envasado de alimentos y productos farmacéuticos.',
+      producto:'Máquinas de termoformado, empaque al vacío, etiquetado y control de calidad. Soluciones para industria alimentaria, farmacéutica y médica.',
+      mercado:'Industria de alimentos en Colombia modernizando su empaque. Regulaciones de etiquetado nutricional y sostenibilidad impulsan renovación de equipos.',
+      insight:'Empresa tecnológica con representación de marca alemana premium. Oportunidad en materiales para ferias industriales, brochures técnicos y capacitaciones.' },
+  ]},
+
+  Arian: { color:'#FF6584', clients: [
+    { name:'AUTOGERMANA', full:'AUTOGERMANA SAS', sector:'Automotriz', sClass:'auto',
+      logo:'autogermana.com',
+      empresa:'Concesionario oficial BMW y Mini en Colombia. Uno de los más reconocidos del segmento premium. Múltiples puntos de atención en Bogotá y otras ciudades.',
+      producto:'BMW Serie 1, 3, 5, X1, X3, X5, iX (eléctrico). Mini Cooper, Countryman. BMW Motorrad. Servicio post-venta certificado BMW.',
+      mercado:'Segmento premium creció con el boom automotriz 2026. BMW refuerza su portafolio eléctrico (iX, i4, i5) como respuesta al alza de Tesla.',
+      insight:'BMW acaba de lanzar nuevos modelos eléctricos. Autogermana necesitará materiales de lanzamiento, señalética, brochures y contenido para showrooms.' },
+
+    { name:'AUTONIZA', full:'AUTONIZA SA', sector:'Automotriz', sClass:'auto',
+      logo:'autoniza.com',
+      empresa:'Concesionario Nissan en Colombia con amplia red de puntos de venta. Parte del ecosistema de distribución Nissan que busca recuperar participación de mercado.',
+      producto:'Nissan Kicks, Frontier, X-Trail, Versa. Servicio de posventa con talleres certificados y repuestos originales.',
+      mercado:'Nissan apunta a recuperar cuota en el mercado colombiano donde Kia y Renault lideran. El segmento de SUVs y pickups sigue siendo clave.',
+      insight:'Concesionario activo en lanzamientos. Ideal para proponer paquetes de comunicación integral: digital + impreso para cada lanzamiento de modelo.' },
+
+    { name:'CASATORO', full:'CASATORO S.A. BIC', sector:'Automotriz', sClass:'auto',
+      logo:'casatoro.com.co',
+      empresa:'Uno de los concesionarios Toyota más grandes de Colombia. Empresa BIC (Beneficio e Interés Colectivo). Julio 2026: beneficiado por disponibilidad del Prado LC250 híbrido y FJ en preventa, dos de los modelos más aspiracionales del año.',
+      producto:'Toyota Hilux, RAV4, Corolla Cross (100% híbrido, 51% de su segmento), Fortuner, Land Cruiser Prado LC250 2026 híbrido (326HP). FJ disponible en preventa. Posventa Toyota certificado.',
+      mercado:'Toyota 3a marca Colombia. Los concesionarios BIC como Casatoro se benefician del auge de vehículos electrificados: su portafolio híbrido es exactamente lo que el mercado demanda en H2 2026.',
+      insight:'Como empresa BIC, Casatoro valora proveedores con buenas prácticas. Con lanzamiento del Prado LC250 híbrido, proponer materiales de lanzamiento en papel certificado FSC y soluciones de impresión responsable. Diferenciador doble: Toyota premium + sostenibilidad de materiales IP7.' },
+
+    { name:'DISTRIBUIDORA FARMACÉUTICA ROMA', full:'DISTRIBUIDORA FARMACEUTICA ROMA SA', sector:'Farmacéutico', sClass:'farma',
+      logo:'roma.com.co',
+      empresa:'Distribuidora mayorista de medicamentos y productos farmacéuticos para Colombia. Canal estratégico entre laboratorios y el punto de dispensación.',
+      producto:'Distribución de medicamentos de marca y genéricos a droguerías, clínicas y hospitales. Cadena de frío para biológicos. Cobertura nacional.',
+      mercado:'El canal de distribución farmacéutica enfrenta presión de grandes cadenas (Locatel, Cruz Verde, Farmatodo) y plataformas digitales de entrega de medicamentos.',
+      insight:'Alta necesidad de documentación logística, etiquetas de temperatura, sellos de seguridad, papelería de facturación y comunicación con red de droguerías.' },
+
+    { name:'GAES COLOMBIA', full:'GAES COLOMBIA S.A.S.', sector:'Salud', sClass:'salud',
+      logo:'gaes.com.co',
+      empresa:'Filial de Amplifon (líder mundial en audiología) en Colombia. Red de centros auditivos con presencia en principales ciudades del país.',
+      producto:'Audífonos Amplifon, Signia, Widex. Soluciones auditivas para adultos mayores y pérdida auditiva. Servicios de evaluación y adaptación auditiva.',
+      mercado:'El mercado de audiología en Colombia crece con el envejecimiento poblacional. Tecnología Bluetooth y IA en audífonos son la tendencia 2026.',
+      insight:'Red de centros con necesidades de señalética, brochures de producto, material de sala de espera y comunicaciones para pacientes mayores.' },
+
+    { name:'YOKOMOTOR', full:'YOKOMOTOR S.A', sector:'Automotriz', sClass:'auto',
+      logo:'yokomotor.com.co',
+      empresa:'Concesionario Toyota, una de las redes más grandes del país. Julio 2026: se beneficia del lanzamiento del Prado LC250 2026 híbrido (326HP, i-FORCE MAX) y del FJ en preventa. Toyota: 3ra marca Colombia S1 2026. Yokomotor publicó guía completa de todos los modelos Toyota disponibles en Colombia 2026.',
+      producto:'Portafolio Toyota julio 2026: Prado LC250 híbrido (nuevo, 326HP), Land Cruiser FJ (preventa), Hilux, Fortuner, RAV4, Corolla Cross (51% de su categoría), Yaris Cross. Línea GR Sport. Posventa certificado.',
+      mercado:'Toyota 3a marca en ventas Colombia H1 2026. Yokomotor amplía red y refuerza servicio para responder al crecimiento del 50% del mercado.',
+      insight:'Concesionario en expansión con necesidades de material para nuevas sedes, uniformes, señalética, brochures de modelos y campañas de posventa.' },
+
+    { name:'HERO MOTOCORP', full:'HERO MOTOCORP LIMITED', sector:'Automotriz', sClass:'auto',
+      logo:'heromotocorp.com',
+      empresa:'La marca de motos más grande del mundo por volumen. En Colombia opera como importador/distribuidor de motos de bajo cilindraje con alto valor-precio.',
+      producto:'Motos Hero: Splendor, Glamour, Xtreme. Posicionadas en transporte urbano y rural de costo accesible. Nuevos modelos eléctricos en desarrollo.',
+      mercado:'El mercado de motos en Colombia supera los 700.000 unidades/año. Motos eléctricas y de bajo cilindraje crecen por costo del combustible.',
+      insight:'Marca en expansión en Colombia. Oportunidad en material POP para red de distribuidores, señalética de puntos de venta y comunicaciones de campaña.' },
+
+    { name:'PROTELA', full:'PROTELA S.A', sector:'Industria', sClass:'industria',
+      logo:'protela.com.co',
+      empresa:'Empresa textil colombiana con más de 50 años. Fabricante de telas técnicas, uniformes corporativos y textiles para hogar e industria.',
+      producto:'Telas para uniformes, ropa de trabajo, hogar y tapicería. Certificaciones OEKO-TEX. Exporta a América Latina. Marca propia: Telatex.',
+      mercado:'La industria textil colombiana recupera terreno tras difícil 2024-2025. Exportaciones beneficiadas por TLC y nearshoring desde EEUU.',
+      insight:'Empresa con fuerte identidad de marca colombiana. Potencial en catálogos de producto, branding corporativo y materiales para ferias textiles internacionales.' },
+
+    { name:'YAZAKI CIEMEL', full:'YAZAKI CIEMEL SA', sector:'Industria', sClass:'industria',
+      logo:'yazaki.com',
+      empresa:'Filial de Yazaki Corporation (Japón) en Colombia. Fabricante de arneses eléctricos y sistemas de cableado automotriz. Cliente directo: Renault-Sofasa Envigado. Julio 2026: Renault-Sofasa registró +176% de producción en S1 2026 (21.891 unidades), exportando el 66%.',
+      producto:'Arneses eléctricos para vehículos ensamblados en Envigado y exportación a LATAM. Con el plan Renault 2026–2030 de 36 modelos electrificados, la demanda de componentes eléctricos de Yazaki crecerá exponencialmente.',
+      mercado:'Mayor producción Renault (+176%) = mayor demanda de arneses Yazaki. El giro hacia modelos electrificados (todos los nuevos Renault serán EV/híbridos) implica arneses más complejos y de mayor valor por unidad para Yazaki.',
+      insight:'Yazaki está en el mejor momento de su historia en Colombia por el boom Renault. Alta expansión = necesidades de señalética industrial para nuevas líneas, uniformes para más operarios, materiales de seguridad industrial y comunicaciones internas de expansión.' },
+
+    { name:'CREDICORP CAPITAL', full:'CREDICORP CAPITAL', sector:'Financiero', sClass:'banco',
+      logo:'credicorpcapital.com',
+      empresa:'Gestora de inversiones y banca de inversión del Grupo Credicorp (Perú). Presente en Colombia con servicios de wealth management, fondos y mercado de capitales.',
+      producto:'Fondos de inversión, asesoría patrimonial, banca de inversión, renta fija, renta variable, derivados. Clientes institucionales y de alto patrimonio.',
+      mercado:'La gestión de activos en Colombia crece con madurez del mercado de capitales. Credicorp Capital posicionada en segmento de alta gama.',
+      insight:'Empresa de imagen corporativa impecable. Alto estándar en materiales impresos para eventos de clientes, reportes de inversión y comunicaciones institucionales.' },
+
+    { name:'COOPERATIVA SANITAS', full:'COOPERATIVA DE PROFESIONALES SANITAS', sector:'Salud', sClass:'salud',
+      logo:'sanitas.com.co',
+      empresa:'Cooperativa vinculada al Grupo Sanitas (Keralty). Reúne profesionales de la salud con servicios cooperativos y beneficios para sus asociados médicos.',
+      producto:'Servicios cooperativos para médicos y profesionales de salud: créditos, bienestar, capacitación. Vinculada a la red Clínicas y Hospitales Sanitas.',
+      mercado:'El sistema cooperativo de salud en Colombia es fuerte. Grupo Sanitas atiende más de 2 millones de personas. La reforma a la salud fue archivada en el Congreso en S1 2026: el sector salud opera bajo esquema actual, lo que reduce incertidumbre para operadores privados como Sanitas a corto plazo.',
+      insight:'Cooperativa con comunicaciones internas frecuentes para sus asociados. Necesidades de publicaciones, material de eventos y comunicaciones de beneficios.' },
+
+    { name:'MAGMA AUTOMOTIVE', full:'MAGMA AUTOMOTIVE', sector:'Automotriz', sClass:'auto',
+      logo:'magma.com.co',
+      empresa:'Empresa de soluciones automotrices en Colombia. Participa en el ecosistema de concesionarios y servicios para el sector vehículos.',
+      producto:'Servicios automotrices especializados y soluciones para el sector. Participa del crecimiento histórico del mercado automotriz 2026.',
+      mercado:'Sector automotriz Colombia en máximos históricos 2026. Toda la cadena de valor (concesionarios, talleres, accesorios) se beneficia del crecimiento.',
+      insight:'Empresa del ecosistema automotriz en pleno auge. Momento ideal para fortalecer presencia de marca y materiales comerciales.' },
+  ]},
+
+  Sevas: { color:'#43C59E', clients: [
+    { name:'AUTO ROBLE', full:'AUTO ROBLE LTDA', sector:'Automotriz', sClass:'auto',
+      logo:'autoroble.com.co',
+      empresa:'Concesionario automotriz con tradición en Colombia. Opera en el mercado de vehículos nuevos y posventa con énfasis en servicio al cliente.',
+      producto:'Representación de marcas automotrices. Servicio de taller, repuestos y venta de vehículos nuevos y usados.',
+      mercado:'El mercado creció 50.3% en H1 2026. Los concesionarios tradicionales con buen servicio posventa ganan participación en un mercado más competitivo.',
+      insight:'Concesionario con necesidades permanentes de material POP, señalética de pisos de ventas y comunicaciones para clientes en proceso de compra.' },
+
+    { name:'BARU MOTORS', full:'BARU MOTORS (MONTERÍA)', sector:'Automotriz', sClass:'auto',
+      logo:'barumotors.com',
+      empresa:'Concesionario automotriz en Montería, capital de Córdoba. Atiende mercado regional de la Costa Atlántica con alta demanda de vehículos utilitarios.',
+      producto:'Venta de vehículos nuevos y seminuevos para el mercado de la Costa. Pickups y SUVs con fuerte demanda del sector agropecuario y ganadero costeño.',
+      mercado:'La Costa Atlántica tiene dinámica propia: sector agro, ganadero y turístico sostienen demanda. Auge de crédito vehicular beneficia regiones intermedias.',
+      insight:'Concesionario regional con necesidades de material publicitario local, branding de instalaciones y comunicaciones adaptadas al mercado costeño.' },
+
+    { name:'DISTRIBUIDORA TOYOTA', full:'DISTRIBUIDORA TOYOTA S A S', sector:'Automotriz', sClass:'auto',
+      logo:'toyota.com.co',
+      empresa:'Distribuidora oficial Toyota en Colombia. Toyota: 3a marca más vendida en S1 2026. Julio 2026: Land Cruiser Prado LC250 2026 híbrido disponible en Colombia con sistema i-FORCE MAX (326HP, motor 2.4L turbo + motor eléctrico). Toyota Land Cruiser FJ inició preventa.',
+      producto:'Prado LC250 2026 Híbrido: 326HP, 4x4 permanente, caja reductora, tecnología off-road integrada con sistema híbrido. Corolla Cross (51% de su segmento), Hilux, RAV4, Fortuner. FJ en preventa. Estrategia: 100% modelos masivos híbridos.',
+      mercado:'Toyota 3ra marca Colombia S1 2026. La tracción del Prado LC250 híbrido y el FJ añaden productos aspiracionales de alto margen. Kia lidera (13%) pero Toyota consolida posición en SUVs y pickups premium.',
+      insight:'Dos hitos en julio: Prado LC250 híbrido disponible y FJ en preventa. Alta necesidad de materiales de lanzamiento premium para ambos modelos, señalética en concesionarios y brochures técnicos de sistema híbrido para vendedores.' },
+
+    { name:'LAFRANCOL / SYNTHESIS', full:'LABORATORIO FRANCO COLOMBIANO LAFRANCOL (SYNTESIS)', sector:'Farmacéutico', sClass:'farma',
+      logo:'lafrancol.com',
+      empresa:'Laboratorio Franco-Colombiano, parte del grupo Abbott. 2do laboratorio más grande de Colombia. Julio 2026: el sector farmacéutico colombiano proyecta ventas de ~US$6.000M y exportaciones de ~US$388M (2025), con Colombia ganando terreno como destino de inversión farmacéutica en LATAM. El INVIMA logró reconocimiento Nivel IV de OPS/OMS.',
+      producto:'Medicamentos bajo marcas propias y líneas Abbott. Synthesis: genéricos de alto estándar. Cadena certificada INVIMA. Lafrancol exporta a más de 20 países con medicamentos certificados. Foco creciente en biosimilares y oncología.',
+      mercado:'Abbott/Lafrancol ocupa el 2do puesto en el ranking farmacéutico colombiano. Con reforma a la salud archivada en el Congreso, el sector opera bajo esquema actual EPS-IPS: menor incertidumbre regulatoria de corto plazo.',
+      insight:'Gran empresa con alta demanda de material médico-científico, presentaciones para visitadores, congresos médicos y reportes corporativos.' },
+
+    { name:'SIEMENS', full:'SIEMENS (Sociedad por Acciones, Fundación, Healthcare)', sector:'Tecnología / Energía', sClass:'energia',
+      logo:'siemens.com',
+      empresa:'Siemens AG en Colombia (automatización industrial, Healthineers, movilidad). Julio 2026: Siemens abrió convocatoria regional para proyectos de eficiencia energética (junio 2026). Siemens Energy y Siemens Healthineers operan como entidades separadas pero complementarias con fuerte presencia local.',
+      producto:'Automatización industrial (PLCs, variadores, robots), equipos médicos Healthineers (tomógrafos, resonancias), sistemas de movilidad (metro Bogotá), IoT industrial. Convocatoria activa de eficiencia energética para empresas regionales.',
+      mercado:'Siemens se beneficia del impulso a renovables (subasta 23 jul 2026), infraestructura y eficiencia energética en Colombia. Con reforma salud archivada, Healthineers opera en ambiente regulatorio estable.',
+      insight:'Empresa multinacional con estrictos estándares de branding. Gran consumidor de materiales para ferias, instalaciones, capacitaciones técnicas y eventos corporativos.' },
+
+    { name:'SIEMENS ENERGY', full:'SIEMENS ENERGY', sector:'Energía', sClass:'energia',
+      logo:'siemens-energy.com',
+      empresa:'🔥 JULIO 2026: Siemens Energy participa en la Subasta de Energía Limpia a Largo Plazo del 23 de julio de 2026 (Producto 1 y Producto 3 con inicio 2030–2035). Además, es socio junto a EDF, Northland Power y Ecopetrol en proyecto de Hidrógeno Verde en Colombia. +1.000 MW en proyectos de renovables en ejecución.',
+      producto:'Transformadores (3kVA–120MVA, hasta 230kV), soluciones para proyectos eólicos y solares, BESS (almacenamiento en baterías), sistemas para centros de datos. Convocatoria regional de eficiencia energética activa (junio 2026).',
+      mercado:'La subasta del 23 de julio atraerá nuevos contratos de generación renovable de largo plazo para Colombia. El proyecto de H2 verde con Ecopetrol posiciona a Siemens Energy en el sector estratégico de mayor crecimiento del país para 2026–2035.',
+      insight:'Momento estratégico: la subasta del 23 de julio y el proyecto de hidrógeno verde con Ecopetrol significan nuevos proyectos de gran escala. Proponer materiales técnicos de proyecto, señalética industrial para nuevas instalaciones, reportes de sostenibilidad y comunicaciones de hito corporativo.' },
+
+    { name:'INNOMOTICS', full:'INNOMOTICS SAS', sector:'Industria', sClass:'industria',
+      logo:'innomotics.com',
+      empresa:'Filial de Innomotics (escindida de Siemens), especialista en motores eléctricos y accionamientos de alta eficiencia. Opera en sector industrial colombiano.',
+      producto:'Motores eléctricos industriales, variadores de frecuencia, sistemas de accionamiento para industria minera, oil & gas, alimentos y manufactura.',
+      mercado:'La eficiencia energética es prioridad 2026 en Colombia. Motores de alta eficiencia IE3/IE4 obligatorios en nuevas instalaciones industriales.',
+      insight:'Empresa técnica con necesidades de catálogos de producto, fichas técnicas certificadas, material de ferias industriales y capacitaciones para ingenieros.' },
+
+    { name:'VEHICULOS DEL CAFÉ', full:'VEHICULOS DEL CAFE S.A.S.', sector:'Automotriz', sClass:'auto',
+      logo:'vehiculosdelcafe.com',
+      empresa:'Concesionario automotriz en la región cafetera de Colombia. Atiende los departamentos de Caldas, Risaralda y Quindío con fuerte presencia regional.',
+      producto:'Venta de vehículos nuevos y seminuevos. Talleres de posventa. Atiende demanda del sector cafetero, turístico y empresarial de la región.',
+      mercado:'La región cafetera crece en turismo y agroindustria. Demanda de vehículos robustos para zonas montañosas. Beneficiada por el crecimiento nacional del 50%.',
+      insight:'Concesionario regional con identidad propia. Material publicitario adaptado a la región, presencia en ferias locales y comunicaciones para comunidad cafetera.' },
+
+    { name:'PEGATEX / ARTECOLA', full:'PEGATEX ARTECOLA SAS', sector:'Industria', sClass:'industria',
+      logo:'artecola.com.br',
+      empresa:'Empresa de adhesivos y soluciones de unión para industria. Parte del grupo brasileño Artecola. Opera en Colombia con adhesivos industriales para calzado, muebles y construcción.',
+      producto:'Adhesivos industriales, PVA, adhesivos de contacto, poliuretanos. Soluciones para calzado, marroquinería, muebles y paneles de construcción.',
+      mercado:'La industria del calzado y muebles en Colombia se recupera. La construcción reactiva impulsa demanda de adhesivos de construcción.',
+      insight:'Empresa B2B con necesidades de fichas técnicas, material de demostración para clientes industriales y catálogos técnicos de producto.' },
+
+    { name:'RENTEK', full:'RENTEK S.A.S.', sector:'Logística', sClass:'logistica',
+      logo:'rentek.com.co',
+      empresa:'Empresa de renting vehicular en Colombia. Ofrece arrendamiento operativo de vehículos para empresas, una alternativa al leasing tradicional.',
+      producto:'Renting de carros, camiones y motos para flotas corporativas. Mantenimiento incluido, reemplazo garantizado, gestión integral de flota.',
+      mercado:'El renting vehicular en Colombia crece con la cultura de "uso sobre propiedad". Empresas prefieren control de costos fijo vs. inversión en flota propia.',
+      insight:'Empresa con flota grande rotativa. Alta demanda de vinilos, branding vehicular, señalética de entrega de vehículos y materiales de presentación comercial.' },
+  ]},
+
+  Margarita: { color:'#F59E0B', clients: [
+    { name:'ALMAVIVA', full:'ALMACENES GENERALES DE DEPOSITO ALMAVIVA SA', sector:'Logística', sClass:'logistica',
+      logo:'almaviva.com',
+      empresa:'Almaviva es líder en almacenamiento y logística de Colombia. Depósitos habilitados, zonas francas y servicios de comercio exterior. Más de 70 años en el mercado.',
+      producto:'Almacenamiento general y refrigerado, zonas francas, nacionalización de mercancías, gestión de inventarios, distribución B2B.',
+      mercado:'El comercio exterior colombiano crece en 2026. Los TLC activos impulsan importaciones y exportaciones. Almaviva es infraestructura crítica de esta cadena.',
+      insight:'Empresa grande con múltiples bodegas y centros de operación. Necesidades de señalética, uniformes, etiquetas industriales y comunicaciones para operarios.' },
+
+    { name:'ASTARA (HYUNDAI)', full:'ASTARA (Escandinava, Italoamerica, Hyundai)', sector:'Automotriz', sClass:'auto',
+      logo:'hyundaicolombia.co',
+      empresa:'🔥 JULIO 2026: Hyundai Colombia lanzó campaña "96 Horas Hyundai" del 9 al 13 de julio con bono especial de $3.000.000 en toda la gama. Astara Colombia distribuidor oficial con récord histórico en 2025 (+20.000 unidades). 53% portafolio electrificado.',
+      producto:'HB20 regresó a Colombia (junio 2026): versiones hatchback y sedán, motor 1.6L (121HP), desde $68.990.000. Kona (31% ventas), Santa Fe (triplicó ventas 2025), Tucson, Creta. Portafolio creciente de electrificados.',
+      mercado:'Campaña de julio activa impulsa tráfico a concesionarios en plena temporada alta. El mercado colombiano proyecta 250.000 unidades en 2026. Astara consolida posición con portafolio ampliado por regreso del HB20.',
+      insight:'ACCIÓN INMEDIATA: Campaña 96 Horas en curso (jul 9-13) y relanzamiento del HB20 requieren materiales de punto de venta actualizados, señalética de campaña en concesionarios y piezas de comunicación digital + impresa. El relanzamiento del HB20 es el lanzamiento del semestre.' },
+
+    { name:'EXPERIAN COLOMBIA', full:'EXPERIAN COLOMBIA S A', sector:'Tecnología / Fintech', sClass:'tech',
+      logo:'experian.com',
+      empresa:'🔥 JULIO 2026: Experian Colombia publicó estudio "Repensando la inclusión crediticia en Colombia" (Julián Buitrago, presidente). Conclusión clave: 7 de cada 10 colombianos ya tienen acceso a un producto de crédito formal. DataCrédito: central de riesgo líder del país.',
+      producto:'DataCrédito: buró de crédito para empresas y personas. MiDataCrédito: app para gestión del historial crediticio. Soluciones antifraude, scoring con IA, validación de identidad. 53% de usuarios de crédito ya interactúan con IA.',
+      mercado:'La IA está transformando el crédito en Colombia. El estudio de inclusión financiera posiciona a Experian como referente de política pública. Banca digital busca llegar al 30% sin acceso formal.',
+      insight:'Con la publicación del estudio de inclusión crediticia en julio 2026, Experian estará en modo de comunicación externa intensa. Oportunidad para proponer materiales de evento de lanzamiento del estudio, presentaciones ejecutivas y contenido de marca pensamiento líder.' },
+
+    { name:'MOTORES Y MÁQUINAS', full:'MOTORES Y MAQUINAS S.A. BIC', sector:'Automotriz / Industrial', sClass:'auto',
+      logo:'motoresymaquinas.com.co',
+      empresa:'Distribuidor oficial Caterpillar en Colombia (maquinaria amarilla) y BYD (vehículos eléctricos). Empresa BIC (Beneficio e Interés Colectivo) con compromiso de sostenibilidad.',
+      producto:'Equipos Caterpillar: retroexcavadoras, excavadoras, motoniveladoras, camiones mineros. BYD: vehículos eléctricos con fuerte crecimiento en Colombia 2026.',
+      mercado:'La construcción reactiva en Colombia 2026 impulsa maquinaria. BYD es la marca de EVs con mayor crecimiento en Colombia, compitiendo con Tesla.',
+      insight:'Empresa dual (maquinaria + EV) en dos mercados en auge. Como empresa BIC, valora proveedores responsables. Oportunidad en materiales para lanzamientos BYD y catálogos Caterpillar.' },
+
+    { name:'CONSORCIO EXPRESS', full:'CONSORCIO EXPRESS SAS', sector:'Logística / Transporte', sClass:'logistica',
+      logo:'consorciosexpress.com.co',
+      empresa:'Empresa de transporte y logística en Colombia. Operador de soluciones de movilidad y distribución para el sector empresarial.',
+      producto:'Transporte de carga, logística de última milla, mensajería empresarial. Flota propia con cobertura nacional.',
+      mercado:'El e-commerce impulsa la demanda de logística de última milla en Colombia. El mercado online sigue creciendo y requiere infraestructura logística robusta.',
+      insight:'Empresa de transporte con flota amplia. Alta demanda de branding vehicular, uniformes de conductores, material de entrega y comunicaciones operativas.' },
+
+    { name:'ZMO FONTIBÓN', full:'ZMO FONTIBON (III S.A.S., V S.A.S)', sector:'Automotriz', sClass:'auto',
+      logo:'zmo.com.co',
+      empresa:'Empresa de servicios automotrices en la zona de Fontibón, Bogotá. Opera en el ecosistema de concesionarios y talleres en una de las zonas automotrices más activas del país.',
+      producto:'Servicios automotrices especializados, venta de vehículos y gestión de talleres. Zona de Fontibón: hub automotriz de Bogotá.',
+      mercado:'Fontibón concentra la mayor densidad de negocios automotrices en Bogotá. Con el boom del sector, toda la zona experimenta mayor flujo de clientes.',
+      insight:'Ubicación estratégica en zona automotriz. Material local de alta visibilidad: pendones, señalética exterior y comunicaciones para alta rotación de visitantes.' },
+  ]},
+
+  Daniel: { color:'#EC4899', clients: [
+    { name:'AUTOMOTORES TOYOTA COL.', full:'AUTOMOTORES TOYOTA COLOMBIA SAS', sector:'Automotriz', sClass:'auto',
+      logo:'toyota.com.co',
+      empresa:'Operación central de Toyota en Colombia. Coordina red de concesionarios e importación. Toyota: 3a marca más vendida en Colombia S1 2026. Julio 2026: Land Cruiser Prado LC250 2026 híbrido y Land Cruiser FJ en preventa como hitos de producto del mes.',
+      producto:'Prado LC250 Híbrido 2026: i-FORCE MAX 326HP, 4x4 permanente + caja reductora, disponible en Colombia. FJ en preventa. Corolla Cross híbrido (51% de su segmento). Estrategia: 100% modelos masivos híbridos para 2026–2027.',
+      mercado:'Con proyección de 250.000 unidades para el año, Toyota consolida 3er lugar nacional. La ofensiva híbrida diferencia a Toyota de Kia y Renault que lideran en volumen pero no en electrificación.',
+      insight:'Momento alto de producto: dos lanzamientos premium simultáneos (Prado + FJ). Necesidad urgente de materiales de lanzamiento, kits de prensa, brochures técnicos de sistema híbrido y señalética actualizada para toda la red Toyota Colombia.' },
+
+    { name:'TOYOTA FINANCIAL SERVICES', full:'TOYOTA FINANCIAL SERVICES COLOMBIA S.A.S.', sector:'Financiero / Automotriz', sClass:'banco',
+      logo:'toyota.com.co',
+      empresa:'Brazo financiero de Toyota en Colombia. Ofrece crédito vehicular, leasing y seguros vinculados a la red de concesionarios Toyota.',
+      producto:'Crédito vehicular Toyota, leasing operativo, seguro automotriz, planes de financiación para flotas corporativas. Competencia directa con RCI (Renault).',
+      mercado:'La financiación vehicular crece con el auge del mercado automotriz. Toyota Financial y RCI (Renault) compiten por el financiamiento en sus redes de concesionarios.',
+      insight:'Empresa financiera del ecosistema Toyota. Materiales de punto de venta en concesionarios, brochures de planes de financiación y comunicaciones a compradores.' },
+
+    { name:'MASSY MOTORS (PREMIUM)', full:'MASSY MOTORS (PREMIUM)', sector:'Automotriz', sClass:'auto',
+      logo:'massymotors.com',
+      empresa:'Parte del Grupo Massy (Trinidad & Tobago), distribuidor de marcas premium en el Caribe y Colombia. Opera en el segmento de lujo automotriz.',
+      producto:'Vehículos premium: marcas como Porsche, Volvo u otras dependiendo de la operación Colombia. Servicio posventa especializado para segmento alto.',
+      mercado:'El segmento premium en Colombia creció con el boom 2026. Compradores de alto poder adquisitivo apuran decisiones de compra.',
+      insight:'Segmento de lujo con máximos estándares de presentación. Los materiales premium (papel especial, acabados soft-touch) son esperados en este nivel.' },
+
+    { name:'GRUPO HELSE', full:'GRUPO HELSE SAS', sector:'Salud', sClass:'salud',
+      logo:'grupohelse.com',
+      empresa:'Grupo empresarial del sector salud en Colombia. Opera clínicas, centros de atención y servicios médicos especializados.',
+      producto:'Servicios de salud integrales: consulta, diagnóstico, hospitalización. Expansión a través de alianzas con aseguradoras y EPS.',
+      mercado:'Julio 2026: La reforma a la salud fue archivada en el Congreso. El sector privado opera bajo el esquema actual EPS-IPS con menor incertidumbre regulatoria de corto plazo. Los grupos privados como Helse pueden planear con mayor certeza su expansión.',
+      insight:'Grupo de salud con múltiples puntos de atención. Necesidades de señalética hospitalaria, uniformes del personal, material de sala de espera y comunicaciones al paciente.' },
+
+    { name:'MEDIMARCAS', full:'MEDIMARCAS SAS', sector:'Salud / Farma', sClass:'salud',
+      logo:'medimarcas.com',
+      empresa:'Empresa distribuidora de dispositivos médicos y productos farmacéuticos en Colombia. Opera en el canal institucional y privado de salud.',
+      producto:'Distribución de dispositivos médicos, insumos hospitalarios y productos farmacéuticos especializados. Representación de marcas internacionales en Colombia.',
+      mercado:'Dispositivos médicos: sector en crecimiento sostenido. La inversión en infraestructura hospitalaria pública y privada impulsa el mercado de insumos.',
+      insight:'Empresa con catálogo amplio de productos técnicos. Alta necesidad de fichas técnicas, catálogos impresos para presentación a compradores institucionales y licitaciones.' },
+
+    { name:'GENIAL IOT', full:'GENIAL IOT SAS', sector:'Tecnología', sClass:'tech',
+      logo:'genialiot.com',
+      empresa:'Empresa colombiana de soluciones IoT (Internet of Things) para industria y sector retail. Desarrolla hardware y software para monitoreo y automatización.',
+      producto:'Sensores IoT, plataformas de monitoreo, soluciones de smart building, control de activos y rastreo vehicular. Integración con plataformas cloud.',
+      mercado:'El mercado IoT en Colombia crece con industria 4.0 y smart cities. La digitalización post-pandemia aceleró adopción de soluciones de monitoreo remoto.',
+      insight:'Startup tech en crecimiento. Necesidades de pitch decks, materiales de eventos de innovación, señalética para instalaciones de clientes y marca en equipos.' },
+
+    { name:'E-DEA NETWORKS', full:'E - DEA NETWORKS S.A.S.', sector:'Tecnología', sClass:'tech',
+      logo:'e-dea.com.co',
+      empresa:'Empresa colombiana de soluciones de redes, conectividad e infraestructura TI para empresas e instituciones.',
+      producto:'Diseño e instalación de redes LAN/WAN, fibra óptica, seguridad informática, infraestructura cloud y centros de datos. Partner de Cisco y marcas líderes.',
+      mercado:'La conectividad empresarial en Colombia se expande. El trabajo híbrido y la digitalización corporativa mantienen alta demanda de infraestructura de red.',
+      insight:'Empresa tech con proyectos en múltiples clientes corporativos. Materiales para propuestas técnicas, presentaciones de infraestructura y branding de proyectos.' },
+
+    { name:'IMAGUNET', full:'IMAGUNET SAS', sector:'Tecnología', sClass:'tech',
+      logo:'imagunet.com',
+      empresa:'Empresa colombiana de soluciones tecnológicas para el sector salud. Digitalización de imágenes médicas y sistemas de información hospitalaria.',
+      producto:'Sistemas PACS (imagen médica digital), RIS, inteligencia artificial para diagnóstico por imagen, telemedicina y expediente clínico electrónico.',
+      mercado:'La digitalización de imágenes médicas en Colombia avanza. La telemedicina post-COVID es ahora estándar. IA diagnóstica: tendencia clave 2026.',
+      insight:'Empresa tech-salud en un nicho de alta especialización. Necesidades de materiales para congresos médicos, presentaciones a hospitales y comunicaciones técnicas.' },
+
+    { name:'L.A.S. ELECTROMEDICINA', full:'L.A.S. ELECTROMEDICINA S.A.S', sector:'Salud', sClass:'salud',
+      logo:'laselectromedicina.com',
+      empresa:'Empresa colombiana especializada en mantenimiento y reparación de equipos médicos electrónicos. Presta servicios a hospitales, clínicas y centros de diagnóstico.',
+      producto:'Mantenimiento preventivo y correctivo de equipos médicos: monitores, ventiladores, equipos de diagnóstico. Contratos de servicio con hospitales públicos y privados.',
+      mercado:'El mantenimiento de equipos médicos es sector esencial. Con reformas al SGSSS, hospitales optimizan costos: el mantenimiento de equipos vs. compra nueva gana terreno.',
+      insight:'Empresa de servicios con clientes en todo el sector salud. Material técnico para propuestas de contratos, fichas de servicio y comunicaciones institucionales.' },
+  ]},
+
+  Yanira: { color:'#14B8A6', clients: [
+    { name:'INCHCAPE / DERCO', full:'INCHCAPE COLOMBIA SAS (DERCO)', sector:'Automotriz', sClass:'auto',
+      logo:'derco.com.co',
+      empresa:'🔥 JULIO 2026: Inchcape invirtió más de £3 millones (~$15.800M COP) en un nuevo Centro Logístico de Repuestos en CLIS (Siberia, Bogotá). Integración Inchcape-Derco en avance: mayor distribuidor automotriz independiente de las Américas. MD Colombia: José Francisco Gili. Town Hall con 800+ empleados en CLIS. Meta: 12–15% participación mercado.',
+      producto:'Marcas: Suzuki, Chery, JAC, DFSK, Hino, Subaru, Jaguar, Land Rover, Citroën, DS. Nuevo centro logístico en CLIS garantiza disponibilidad de repuestos y rapidez en posventa.',
+      mercado:'Con mercado colombiano en máximos históricos (+50.1% S1 2026), la nueva Inchcape-Derco consolida escala operativa. La inversión en logística de repuestos es diferenciador de posventa clave.',
+      insight:'MOMENTO CLAVE: El nuevo centro logístico en CLIS = inauguración + comunicación de hito corporativo. La integración de marcas y operaciones requiere señalética unificada, uniformes corporativos, materiales de bienvenida para empleados y branding del nuevo hub. Contactar urgente.' },
+
+    { name:'RENAULT SOFASA', full:'RENAULT SOCIEDAD DE FABRICACION DE AUTOMOTORES (FUNDACIÓN)', sector:'Automotriz', sClass:'auto',
+      logo:'renault.com.co',
+      empresa:'🔥 JULIO 2026: Renault-Sofasa produjo 21.891 vehículos en S1 2026, un alza del +176% vs S1 2025. Exporta el 66% de su producción (14.348 unidades). Planta Envigado en máximos históricos. Yazaki Ciemel es proveedor directo Tier 1.',
+      producto:'Duster: 2do vehículo más vendido en Colombia en S1 2026 (5.558 unidades, versión combustión + híbrida E-Tech). Plan estratégico 2026–2030: 36 nuevos modelos, 14 para mercados internacionales, todos electrificados. Renault 4 E-Tech, Boreal y Kardian Iconic en camino.',
+      mercado:'Renault: 2da marca más vendida en Colombia S1 2026 con 15.820 unidades (11.1% mercado). La planta Envigado se consolida como eje de exportación para LATAM. Mayor producción = mayor demanda a proveedores de comunicación.',
+      insight:'Con producción +176% y plan de 36 modelos, la comunicación interna, de red y de lanzamiento es crítica. Alta necesidad de brochures de lanzamiento, señalética de concesionarios, materiales para fuerza de ventas y comunicaciones a red nacional. Yazaki Ciemel también está en expansión directa.' },
+
+    { name:'SYNLAB COLOMBIA', full:'SYNLAB COLOMBIA SAS', sector:'Salud / Diagnóstico', sClass:'salud',
+      logo:'synlab.co',
+      empresa:'Red líder europea de diagnóstico en Colombia. +29 departamentos de cobertura, 4 centrales de procesamiento, más de 15 millones de muestras/año. 1.633 empleados (2026). Ingresos netos crecieron +9.33% en 2025. Presencia en Fuerzas Militares y sector institucional.',
+      producto:'Diagnóstico de alta, mediana y baja complejidad. Genética, oncología molecular, microbiología, hematología, toxicología, inmunología, errores metabólicos. Canal B2B para IPS, EPS y sector militar.',
+      mercado:'Sector diagnóstico crece con demanda pospandémica. El crecimiento de +9.33% en ingresos confirma expansión constante. Synlab lidera en cobertura nacional y evoluciona hacia medicina genómica e IA diagnóstica.',
+      insight:'Red en crecimiento (+9% ingresos) con 1.633 empleados y cobertura en 29 departamentos. Alto volumen de materiales estandarizados para toda la red: etiquetas, formularios, señalética, uniformes de laboratorio y comunicaciones a médicos remisores. Economía de escala favorece propuestas de contrato anual.' },
+
+    { name:'SOCIEDAD PORTUARIA', full:'SOCIEDAD PORTUARIA (Operadora Internacional, Regional, Terminal, Fundación, GPC Tugs)', sector:'Logística / Infraestructura', sClass:'logistica',
+      logo:'sprc.com.co',
+      empresa:'Grupo portuario de Colombia con operaciones en Cartagena (SPRC), Puerto Brisa y otros terminales. Opera el puerto de contenedores más importante del país.',
+      producto:'Terminal de contenedores, manejo de carga general, almacenamiento, logística portuaria, remolcadores (GPC Tugs). Fundación social vinculada.',
+      mercado:'El comercio exterior colombiano crece en 2026 impulsado por TLC y nearshoring. Cartagena consolida su posición como hub logístico del Caribe.',
+      insight:'Infraestructura crítica con múltiples entidades. Alta demanda de señalética industrial, comunicaciones de seguridad, uniformes y material corporativo de grupo.' },
+
+    { name:'PONTIFICIA U. JAVERIANA', full:'PONTIFICIA UNIVERSIDAD JAVERIANA', sector:'Educación', sClass:'edu',
+      logo:'javeriana.edu.co',
+      empresa:'QS Rankings LATAM 2026: Javeriana en top 10 de la región en "Reputación de Empleadores" (puesto 9). Anunció nuevas carreras técnicas más asequibles (en piloto con TEC Uniandes). Evento programado 9 jul 2026 en campus Bogotá. Sede del ISOTT 2026 (junio). Presente en Bogotá y Cali.',
+      producto:'Educación superior, investigación, extensión social. Nuevos programas técnicos y tecnológicos de menor costo. Facultades de medicina, ingeniería, ciencias jurídicas, arquitectura y diseño. Publicaciones académicas propias.',
+      mercado:'Las universidades colombianas de élite compiten por ranking internacional y asequibilidad. La Javeriana abre segmento técnico para ampliar base sin perder prestigio.',
+      insight:'Semestre nuevo comenzando + posicionamiento en rankings 2026 = momento de comunicación institucional intensa. Alta demanda de material de bienvenida para nuevos estudiantes, señalética de campus, comunicaciones de nuevos programas y memorias de eventos académicos.' },
+
+    { name:'RCI COLOMBIA (MOBILIZE)', full:'RCI COLOMBIA SA COMPAÑIA DE FINANCIAMIENTO (MOBILIZE)', sector:'Financiero / Automotriz', sClass:'banco',
+      logo:'mobilize-fs.com',
+      empresa:'Brazo financiero del Grupo Renault en Colombia, ahora bajo la marca Mobilize Financial Services. Ofrece financiamiento vehicular para la red Renault y Dacia.',
+      producto:'Crédito vehicular Renault, seguros automotrices, planes de mantenimiento. Financiación especial para vehículos eléctricos Renault en Colombia.',
+      mercado:'Con los 3 lanzamientos Renault 2026 (R4 E-Tech, Boreal, Kardian Iconic), RCI-Mobilize tendrá mayor demanda de financiamiento. Renault es 2a marca más vendida.',
+      insight:'Renault en auge = más financiamiento Mobilize. Momento para proponer materiales de punto de venta en concesionarios Renault y comunicaciones de planes de crédito EV.' },
+
+    { name:'FRESENIUS KABI', full:'FRESENIUS KABI COLOMBIA', sector:'Farmacéutico / Salud', sClass:'farma',
+      logo:'fresenius-kabi.com',
+      empresa:'Filial colombiana de Fresenius Kabi (Alemania), especialista mundial en medicamentos vitales, nutrición clínica y tecnologías de infusión/transfusión.',
+      producto:'Nutrición parenteral y enteral, medicamentos oncológicos IV, soluciones de infusión, biosimilares. Equipos de infusión hospitalaria. Medicamentos críticos en UCI.',
+      mercado:'Fresenius Kabi posicionada junto a Fresenius Medical Care en el ranking farmacéutico colombiano. Alta demanda de biosimilares oncológicos en Colombia 2026.',
+      insight:'Empresa de medicamentos críticos con altísimos estándares. Comunicaciones para personal médico y de enfermería, brochures clínicos y material para congresos de terapia intensiva.' },
+
+    { name:'UNIVERSIDAD DE LOS ANDES', full:'UNIVERSIDAD DE LOS ANDES', sector:'Educación', sClass:'edu',
+      logo:'uniandes.edu.co',
+      empresa:'QS Rankings LATAM 2026: Los Andes #1 en Colombia y top 5 de la región en "Reputación de Empleadores". La universidad privada #1 de Colombia en rankings internacionales. Campus en Bogotá. Piloto TEC Uniandes para carreras técnicas/tecnológicas ya activo.',
+      producto:'Educación superior en todas las disciplinas. Programas de posgrado de alta demanda. TEC Uniandes: micro y macro-credenciales de bajo costo. Iniciativas de innovación y emprendimiento. Evento Pavilion 2026: oct 7–9, Bogotá.',
+      mercado:'Los Andes lidera ranking empleadores en LATAM (top 5). Las universidades de élite colombianas apuestan por ampliar acceso con educación técnica de calidad como estrategia de impacto social.',
+      insight:'Pavilion 2026 (oct 7-9 en Bogotá): conferencia internacional de diseño, arquitectura y arte — con 3 meses de anticipación es momento ideal para proponer paquete completo de señalética, brochures, credenciales de evento y memorias de congreso.' },
+
+    { name:'UNIVERSIDAD DE LA SALLE', full:'UNIVERSIDAD DE LA SALLE', sector:'Educación', sClass:'edu',
+      logo:'lasalle.edu.co',
+      empresa:'Universidad lasallista con fuerte enfoque en responsabilidad social y pertinencia regional. Sedes en Bogotá y Yopal. Comunidad universitaria activa.',
+      producto:'Pregrados y posgrados en áreas de ciencias, ingeniería, ciencias agropecuarias, ciencias de la salud y ciencias económicas. Educación con énfasis comunitario.',
+      mercado:'La universidad colombiana pública y privada enfrenta desafíos de acceso y calidad. La Salle se posiciona en educación incluyente y con pertinencia social.',
+      insight:'Universidad con calendario académico activo y comunidad estudiantil grande. Publicaciones, material de bienvenida, comunicaciones institucionales y eventos de grado frecuentes.' },
+
+    { name:'WHIRLPOOL COLOMBIA', full:'WHIRLPOOL COLOMBIA S A S', sector:'Industria / Consumo', sClass:'industria',
+      logo:'whirlpool.com',
+      empresa:'Filial colombiana de Whirlpool Corporation (EEUU). Ventas netas en Colombia crecieron +29.09% en 2025. Opera con 111 empleados en Bogotá. Marcas: Whirlpool, Maytag, KitchenAid. Presente en Alkosto, Home Center, Falabella.',
+      producto:'Lavadoras, refrigeradoras, cocinas, hornos microondas, lavavajillas. Fuerza de ventas activa en cadenas nacionales. Nuevas líneas de electrodomésticos inteligentes con conectividad.',
+      mercado:'El mercado de electrodomésticos en Colombia crece con formalización del hogar y recuperación del poder adquisitivo. La competencia de marcas asiáticas presiona precios, pero el crecimiento del +29% confirma posición premium sólida.',
+      insight:'Con crecimiento del 29% en ventas, Whirlpool Colombia está en expansión activa. Alta demanda de material POP para cadenas retail, activaciones en punto de venta y comunicaciones de nuevas colecciones. Alinear propuesta con ciclos de temporada (Black Friday, Navidad).' },
+
+    { name:'MITSUBISHI ELECTRIC', full:'MITSUBISHI ELECTRIC DE COLOMBIA TDA', sector:'Industria / Tecnología', sClass:'industria',
+      logo:'mitsubishielectric.com',
+      empresa:'Filial de Mitsubishi Electric (Japón) en Colombia. Provee soluciones de automatización industrial, aires acondicionados, elevadores y sistemas eléctricos.',
+      producto:'Variadores de velocidad, PLCs, HMIs, robots industriales, aires acondicionados industrial y comercial, elevadores, sistemas de generación eléctrica.',
+      mercado:'La industria 4.0 en Colombia impulsa la automatización. El boom de construcción reactiva demanda elevadores y sistemas eléctricos. Siemens y Mitsubishi compiten en este espacio.',
+      insight:'Empresa japonesa de alta tecnología con estrictos estándares de presentación. Materiales para ferias industriales, catálogos técnicos certificados y capacitaciones de ingeniería.' },
+
+    { name:'GEODIS COLOMBIA', full:'GEODIS COLOMBIA (AGENCIA)', sector:'Logística', sClass:'logistica',
+      logo:'geodis.com',
+      empresa:'Filial colombiana de GEODIS (Grupo SNCF, Francia), uno de los operadores logísticos globales más grandes. Presente en Colombia con agencia de carga y freight forwarding.',
+      producto:'Freight forwarding (aéreo y marítimo), aduanas, logística de proyectos, gestión de cadena de suministro. Conexión con red global GEODIS en 170+ países.',
+      mercado:'El comercio exterior colombiano crece en 2026. GEODIS se beneficia del aumento de importaciones y exportaciones. El nearshoring atrae más carga a Colombia.',
+      insight:'Operador logístico global con exigentes estándares de imagen. Comunicaciones corporativas de alto nivel, reportes de sostenibilidad y material para licitaciones de carga.' },
+
+    { name:'PLAN ROMBO / RENAULT', full:'PLAN ROMBO S.A. - Administradora de Planes de Autofi', sector:'Financiero / Automotriz', sClass:'banco',
+      logo:'planrombo.com.co',
+      empresa:'Administradora del Plan Rombo de Renault Colombia, sistema de ahorro programado para adquisición de vehículos Renault. Alternativa al crédito tradicional.',
+      producto:'Planes de ahorro para compra de vehículos Renault mediante cuotas mensuales y adjudicación por sorteo o remate. Competencia con financiamiento bancario.',
+      mercado:'Con los nuevos lanzamientos Renault 2026 (R4 Electric, Boreal, Kardian), Plan Rombo tendrá demanda renovada de clientes interesados en nuevos modelos.',
+      insight:'Con 3 nuevos lanzamientos Renault, habrá campaña de Plan Rombo actualizada. Material de punto de venta, brochures de planes y comunicaciones a suscriptores actuales.' },
+  ]}
+};
+
+// ─── RENDER ─────────────────────────────────────────────────────────────────
+let currentExec = 'all';
+
+function getLogoUrl(domain) {
+  return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+}
+
+function initials(name) {
+  return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+function renderCards() {
+  const grid = document.getElementById('mainGrid');
+  grid.innerHTML = '';
+  
+  Object.entries(EXECS).forEach(([exec, data]) => {
+    if (currentExec !== 'all' && currentExec !== exec) return;
+    
+    const section = document.createElement('div');
+    section.className = 'exec-section';
+    section.dataset.exec = exec;
+    
+    section.innerHTML = `
+      <div class="exec-header">
+        <div class="exec-dot" style="background:${data.color}"></div>
+        <div class="exec-name">${exec}</div>
+        <div class="exec-count">${data.clients.length} clientes</div>
+      </div>
+      <div class="clients-grid" id="grid-${exec}"></div>
+    `;
+    grid.appendChild(section);
+    
+    const clientsGrid = section.querySelector(`#grid-${exec}`);
+    data.clients.forEach((c,i) => {
+      const card = document.createElement('div');
+      card.className = 'client-card';
+      card.dataset.exec = exec;
+      card.dataset.search = `${c.name} ${c.full} ${c.sector} ${c.empresa} ${c.producto} ${c.mercado} ${c.insight}`.toLowerCase();
+      
+      card.innerHTML = `
+        <div class="client-card-header">
+          <div class="client-logo">
+            <img src="${getLogoUrl(c.logo)}" alt="${c.name}" onerror="this.style.display='none';this.nextSibling.style.display='block'">
+            <span class="client-logo-text" style="display:none">${initials(c.name)}</span>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="client-name">${c.name}</div>
+            <span class="client-sector sector-${c.sClass}">${c.sector}</span>
+          </div>
+          <div class="exec-pill" style="background:${data.color}">${exec}</div>
+        </div>
+        <div class="client-card-body">
+          ${makeTab('🏢','EMPRESA','empresa',c.empresa, i===0)}
+          ${makeTab('📦','PRODUCTO / SERVICIO','producto',c.producto, false)}
+          ${makeTab('📊','MERCADO','mercado',c.mercado, false)}
+          ${makeTab('💡','INSIGHT COMERCIAL','insight',c.insight, false)}
+        </div>
+      `;
+      clientsGrid.appendChild(card);
+    });
+  });
+}
+
+function makeTab(icon, label, key, content, open) {
+  return `
+    <div class="info-tab${open?' open':''}">
+      <div class="info-tab-header" onclick="toggleTab(this)">
+        <span class="info-tab-icon">${icon}</span>
+        <span class="info-tab-label">${label}</span>
+        <span class="info-tab-arrow">▼</span>
+      </div>
+      <div class="info-tab-content">
+        <div contenteditable="false" data-key="${key}">${content}</div>
+        <div class="edit-hint">✏️ Editando — los cambios son solo locales (recarga = se pierden)</div>
+      </div>
+    </div>`;
+}
+
+function toggleTab(header) {
+  header.parentElement.classList.toggle('open');
+}
+
+// ─── EDIT MODE ───────────────────────────────────────────────────────────────
+let editMode = false;
+function toggleEdit() {
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  const btn = document.getElementById('editBtn');
+  btn.textContent = editMode ? '✅ Guardar vista' : '✏️ Editar';
+  btn.classList.toggle('active', editMode);
+  document.querySelectorAll('[contenteditable]').forEach(el => {
+    el.contentEditable = editMode ? 'true' : 'false';
+  });
+  if (!editMode) {
+    document.querySelectorAll('.info-tab.open .info-tab-content [contenteditable]').forEach(el => el.blur());
+  }
+}
+
+// ─── FILTER ──────────────────────────────────────────────────────────────────
+function setExec(exec, btn) {
+  currentExec = exec;
+  document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterCards();
+}
+
+function filterCards() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  let anyVisible = false;
+  
+  document.querySelectorAll('.exec-section').forEach(section => {
+    const exec = section.dataset.exec;
+    const execMatch = currentExec === 'all' || currentExec === exec;
+    let sectionHasVisible = false;
+    
+    section.querySelectorAll('.client-card').forEach(card => {
+      const textMatch = !q || card.dataset.search.includes(q);
+      const show = execMatch && textMatch;
+      card.style.display = show ? '' : 'none';
+      if (show) sectionHasVisible = true;
+    });
+    
+    section.style.display = sectionHasVisible ? '' : 'none';
+    if (sectionHasVisible) anyVisible = true;
+  });
+}
+
+renderCards();
+</script>
+</body>
+</html>
