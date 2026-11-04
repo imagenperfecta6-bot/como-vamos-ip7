@@ -1272,6 +1272,8 @@ function cargarEstado() {
           state.meses[k].adjuntos = adjuntos;
         }
       });
+      // Al abrir, mostrar siempre el mes vigente del reporte (no el que el visitante dejó seleccionado)
+      if (state.meses[DEFAULT_DATA.mesActual]) state.mesActual = DEFAULT_DATA.mesActual;
     } else {
       state = JSON.parse(JSON.stringify(DEFAULT_DATA));
     }
